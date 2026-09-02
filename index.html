@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0d0d0d">
+<title>המורה שלי AI</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://unpkg.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; media-src 'self' data: blob:; connect-src 'self' https://generativelanguage.googleapis.com https://api.anthropic.com https://api.openai.com https://cdnjs.cloudflare.com https://unpkg.com https://cdn.jsdelivr.net http://localhost:11434 http://127.0.0.1:11434 http://localhost:1234 https://*; object-src 'none'; base-uri 'none'">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&family=Frank+Ruhl+Libre:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gold:#d4af37; --gold-soft:#b8962e; --gold-dim:rgba(212,175,55,.14);
+  --bg:#0b0b0b; --bg2:#141414; --card:#171717; --card2:#1d1d1d;
+  --line:rgba(212,175,55,.22); --line-soft:rgba(255,255,255,.08);
+  --text:#f2ede0; --text-dim:#a49e90; --danger:#d9645a; --ok:#5fbf7a;
+  --shadow:0 10px 34px rgba(0,0,0,.55);
+  --r:16px; --r-sm:11px;
+  --sans:'Heebo',system-ui,'Segoe UI',Arial,sans-serif;
+  --serif:'Frank Ruhl Libre',Georgia,serif;
+}
+html[data-mode="day"]{
+  --bg:#f3efe4; --bg2:#e9e3d3; --card:#fffdf7; --card2:#f6f1e4;
+  --line:rgba(150,120,20,.30); --line-soft:rgba(0,0,0,.08);
+  --text:#221f18; --text-dim:#6b6555; --gold:#9c7b18; --gold-soft:#856814;
+  --gold-dim:rgba(156,123,24,.12); --shadow:0 10px 30px rgba(120,100,40,.16);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  font-family:var(--sans); background:
+    radial-gradient(1200px 500px at 80% -10%, var(--gold-dim), transparent 60%),
+    var(--bg);
+  color:var(--text); min-height:100vh; line-height:1.55;
+  transition:background .3s,color .3s;
+}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:var(--line);border-radius:20px}
+
+/* App shell */
+.app{max-width:820px;margin:0 auto;padding:0 16px 120px}
+.topbar{
+  position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:10px;
+  padding:14px 4px 12px;background:linear-gradient(var(--bg) 72%,transparent);
+  backdrop-filter:blur(4px);
+}
+.brand{display:flex;align-items:center;gap:9px;font-weight:900;font-size:20px;letter-spacing:-.3px}
+.brand .apple{font-size:22px}
+.brand b{color:var(--gold)}
+.topbar .sp{flex:1}
+.icon-btn{
+  width:42px;height:42px;border-radius:12px;border:1px solid var(--line);
+  background:var(--card);color:var(--text);font-size:18px;display:grid;place-items:center;
+  transition:transform .15s,border-color .2s;
+}
+.icon-btn:active{transform:scale(.92)}
+.status-dot{width:9px;height:9px;border-radius:50%;background:var(--danger);box-shadow:0 0 0 3px rgba(0,0,0,.15)}
+.status-dot.on{background:var(--ok)}
+
+/* Screens */
+.screen{display:none;animation:fade .28s ease}
+.screen.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.screen-head{display:flex;align-items:center;gap:12px;margin:6px 0 18px}
+.back{
+  border:1px solid var(--line);background:var(--card);color:var(--text);
+  border-radius:12px;padding:10px 15px;font-weight:700;font-size:15px;display:flex;align-items:center;gap:7px;
+}
+.back:active{transform:scale(.96)}
+.screen-title{font-size:22px;font-weight:900;letter-spacing:-.4px}
+
+/* Home */
+.hero{
+  border:1px solid var(--line);border-radius:var(--r);background:
+    linear-gradient(180deg,var(--card2),var(--card));
+  padding:26px 22px;margin-bottom:18px;position:relative;overflow:hidden;box-shadow:var(--shadow)
+}
+.hero h1{font-family:var(--serif);font-size:30px;margin:0 0 6px;font-weight:700}
+.hero p{margin:0;color:var(--text-dim);font-size:15px;max-width:46ch}
+.hero .apple-lg{position:absolute;left:-6px;top:-14px;font-size:120px;opacity:.06;transform:rotate(-8deg)}
+
+.home-grid{display:grid;gap:13px}
+.tile{
+  border:1px solid var(--line);background:var(--card);border-radius:var(--r);
+  padding:19px 18px;display:flex;align-items:center;gap:15px;text-align:right;width:100%;
+  color:var(--text);transition:transform .15s,border-color .2s,background .2s
+}
+.tile:active{transform:scale(.985)}
+.tile .em{font-size:28px;width:52px;height:52px;display:grid;place-items:center;border-radius:14px;background:var(--gold-dim);border:1px solid var(--line);flex:none}
+.tile .tx b{display:block;font-size:18px;font-weight:800}
+.tile .tx span{color:var(--text-dim);font-size:13.5px}
+.tile.primary{background:linear-gradient(120deg,var(--gold),var(--gold-soft));border-color:transparent}
+.tile.primary .tx b,.tile.primary .tx span{color:#1a1400}
+.tile.primary .em{background:rgba(0,0,0,.14);border-color:rgba(0,0,0,.15)}
+
+/* Cards / forms */
+.card{border:1px solid var(--line);background:var(--card);border-radius:var(--r);padding:18px;margin-bottom:15px;box-shadow:var(--shadow)}
+.card h3{margin:0 0 4px;font-size:17px;font-weight:800}
+.card .hint{color:var(--text-dim);font-size:13px;margin:0 0 14px}
+.field{margin-bottom:15px}
+.field:last-child{margin-bottom:0}
+label.lb{display:block;font-weight:700;font-size:14px;margin-bottom:7px}
+.inp,select.inp,textarea.inp{
+  width:100%;border:1px solid var(--line-soft);background:var(--bg2);color:var(--text);
+  border-radius:var(--r-sm);padding:13px 14px;font-size:15.5px;outline:none;transition:border-color .2s
+}
+.inp:focus{border-color:var(--gold)}
+textarea.inp{min-height:92px;resize:vertical;line-height:1.6}
+select.inp{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--gold) 50%),linear-gradient(135deg,var(--gold) 50%,transparent 50%);background-position:calc(0% + 16px) center,calc(0% + 22px) center;background-size:6px 6px,6px 6px;background-repeat:no-repeat;padding-left:38px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){.row2{grid-template-columns:1fr}}
+
+/* chips */
+.chips{display:flex;flex-wrap:wrap;gap:9px}
+.chip{
+  border:1px solid var(--line);background:var(--bg2);color:var(--text);
+  border-radius:999px;padding:9px 15px;font-size:14px;font-weight:600;transition:.15s
+}
+.chip[aria-pressed="true"]{background:var(--gold);color:#1a1400;border-color:transparent}
+.chip:active{transform:scale(.95)}
+
+/* checkbox grid */
+.cbx-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:520px){.cbx-grid{grid-template-columns:1fr}}
+.cbx{
+  display:flex;align-items:center;gap:11px;border:1px solid var(--line-soft);background:var(--bg2);
+  border-radius:var(--r-sm);padding:12px 13px;font-weight:600;font-size:14.5px;transition:.15s;text-align:right;color:var(--text)
+}
+.cbx .box{width:22px;height:22px;border-radius:7px;border:2px solid var(--line);display:grid;place-items:center;flex:none;font-size:14px;color:#1a1400;transition:.15s}
+.cbx[aria-pressed="true"]{border-color:var(--gold);background:var(--gold-dim)}
+.cbx[aria-pressed="true"] .box{background:var(--gold);border-color:var(--gold)}
+.cbx .em{font-size:19px}
+
+/* upload */
+.drop{
+  border:1.5px dashed var(--line);border-radius:var(--r-sm);padding:20px;text-align:center;
+  color:var(--text-dim);background:var(--bg2);transition:.2s;cursor:pointer
+}
+.drop.hot{border-color:var(--gold);color:var(--text)}
+.file-pill{display:flex;align-items:center;gap:9px;background:var(--gold-dim);border:1px solid var(--line);border-radius:10px;padding:9px 12px;margin-top:10px;font-size:13.5px}
+.file-pill .x{margin-inline-start:auto;border:none;background:none;color:var(--danger);font-size:18px;font-weight:900}
+
+/* big action */
+.cta{
+  width:100%;border:none;border-radius:var(--r);padding:17px;font-size:18px;font-weight:900;
+  background:linear-gradient(120deg,var(--gold),var(--gold-soft));color:#1a1400;
+  box-shadow:0 8px 24px rgba(212,175,55,.28);transition:transform .15s,opacity .2s;letter-spacing:-.2px
+}
+.cta:active{transform:scale(.98)}
+.cta:disabled{opacity:.5;box-shadow:none}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:var(--r-sm);padding:12px 16px;font-weight:700;font-size:14.5px;transition:.15s}
+.btn:active{transform:scale(.96)}
+.btn.gold{background:var(--gold-dim);border-color:var(--line)}
+.btn.danger{border-color:rgba(217,100,90,.5);color:var(--danger)}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap}
+
+/* lesson view */
+.tabs{display:flex;gap:8px;overflow-x:auto;padding:4px 0 12px;margin:0 -4px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{white-space:nowrap;border:1px solid var(--line-soft);background:var(--card);color:var(--text-dim);border-radius:999px;padding:9px 15px;font-weight:700;font-size:14px;flex:none;transition:.15s}
+.tab.active{background:var(--gold);color:#1a1400;border-color:transparent}
+.pane{display:none}
+.pane.active{display:block;animation:fade .25s}
+.phase{border:1px solid var(--line-soft);border-radius:var(--r-sm);padding:14px;margin-bottom:11px;background:var(--card2)}
+.phase .ph-top{display:flex;align-items:center;gap:9px;margin-bottom:7px}
+.phase .min{background:var(--gold-dim);color:var(--gold);border:1px solid var(--line);border-radius:8px;padding:3px 9px;font-weight:800;font-size:12.5px}
+.phase b{font-size:15.5px}
+.obj{padding-inline-start:20px;margin:8px 0}
+.obj li{margin-bottom:5px}
+
+/* slides */
+.slide{border:1px solid var(--line);border-radius:var(--r);background:linear-gradient(160deg,var(--card2),var(--card));padding:26px 22px;min-height:230px;box-shadow:var(--shadow)}
+.slide h4{font-family:var(--serif);font-size:24px;margin:0 0 16px;color:var(--gold)}
+.slide ul{margin:0;padding-inline-start:22px}
+.slide li{margin-bottom:11px;font-size:17px}
+.slide .notes{margin-top:16px;padding-top:12px;border-top:1px dashed var(--line-soft);color:var(--text-dim);font-size:13px}
+.slide-nav{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:14px}
+.slide-nav .n{border:1px solid var(--line);background:var(--card);color:var(--text);width:44px;height:44px;border-radius:12px;font-size:20px}
+.slide-nav .n:disabled{opacity:.35}
+.slide-count{font-weight:800;color:var(--text-dim);min-width:60px;text-align:center}
+
+/* quiz */
+.q{border:1px solid var(--line-soft);border-radius:var(--r-sm);padding:15px;margin-bottom:13px;background:var(--card2)}
+.q .qt{font-weight:800;margin-bottom:11px;font-size:15.5px}
+.opt{display:block;width:100%;text-align:right;border:1px solid var(--line-soft);background:var(--bg2);color:var(--text);border-radius:10px;padding:12px 14px;margin-bottom:8px;font-size:15px;transition:.15s}
+.opt:active{transform:scale(.99)}
+.opt.correct{border-color:var(--ok);background:rgba(95,191,122,.14)}
+.opt.wrong{border-color:var(--danger);background:rgba(217,100,90,.14)}
+.opt.disabled{pointer-events:none;opacity:.85}
+.explain{margin-top:8px;font-size:13.5px;color:var(--text-dim);padding:9px 11px;background:var(--gold-dim);border-radius:9px;border:1px solid var(--line)}
+.quiz-score{text-align:center;font-weight:900;font-size:18px;padding:14px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--gold-dim);margin-top:6px}
+
+/* list rows (library) */
+.lrow{border:1px solid var(--line-soft);background:var(--card);border-radius:var(--r-sm);padding:14px 15px;margin-bottom:11px;display:flex;align-items:center;gap:13px;text-align:right;width:100%;color:var(--text);transition:.15s}
+.lrow:active{transform:scale(.99)}
+.lrow .em{font-size:22px;width:44px;height:44px;border-radius:11px;background:var(--gold-dim);border:1px solid var(--line);display:grid;place-items:center;flex:none}
+.lrow .meta b{display:block;font-size:15.5px}
+.lrow .meta span{color:var(--text-dim);font-size:12.5px}
+.lrow .go{margin-inline-start:auto;color:var(--gold);font-size:20px}
+
+/* provider list */
+.prov{display:flex;align-items:center;gap:12px;border:1px solid var(--line-soft);background:var(--bg2);border-radius:var(--r-sm);padding:13px;margin-bottom:9px;width:100%;text-align:right;color:var(--text);transition:.15s}
+.prov[aria-pressed="true"]{border-color:var(--gold);background:var(--gold-dim)}
+.prov .em{font-size:22px}
+.prov .pv b{display:block;font-size:15px}
+.prov .pv span{color:var(--text-dim);font-size:12.5px}
+.tag{margin-inline-start:auto;font-size:11px;font-weight:800;padding:3px 9px;border-radius:7px}
+.tag.free{background:rgba(95,191,122,.18);color:var(--ok)}
+.tag.api{background:var(--gold-dim);color:var(--gold)}
+.tag.local{background:rgba(150,150,150,.18);color:var(--text-dim)}
+
+/* misc */
+.disclaimer{font-size:12.5px;color:var(--text-dim);border:1px solid var(--line-soft);border-radius:var(--r-sm);padding:11px 13px;background:var(--card2);margin-top:12px}
+.spinner{width:20px;height:20px;border:3px solid rgba(0,0,0,.2);border-top-color:#1a1400;border-radius:50%;display:inline-block;animation:spin .7s linear infinite;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+.badge{text-align:center;color:var(--text-dim);font-size:12px;padding:22px 0 6px}
+.badge b{color:var(--gold)}
+.gen-status{text-align:center;padding:34px 16px;color:var(--text-dim)}
+.gen-status .big{font-size:34px;margin-bottom:12px}
+.link{color:var(--gold);text-decoration:none;font-weight:700}
+.small{font-size:12.5px;color:var(--text-dim)}
+.kv{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line-soft);font-size:14px}
+.kv:last-child{border:none}
+.kv span:last-child{color:var(--text-dim)}
+
+/* toast */
+#toast{position:fixed;bottom:92px;left:50%;transform:translateX(-50%) translateY(30px);background:var(--card);border:1px solid var(--line);color:var(--text);padding:13px 20px;border-radius:12px;font-weight:700;font-size:14.5px;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:.3s;z-index:100;max-width:90%;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* modal */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;place-items:center;z-index:90;padding:18px}
+.modal-bg.show{display:grid}
+.modal{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:22px;max-width:420px;width:100%;box-shadow:var(--shadow)}
+.modal h3{margin:0 0 8px}
+.modal p{color:var(--text-dim);font-size:14px;margin:0 0 18px}
+
+/* onboarding */
+#onb{position:fixed;inset:0;background:var(--bg);z-index:120;display:none;flex-direction:column;padding:30px 22px}
+#onb.show{display:flex}
+.onb-body{flex:1;display:grid;place-items:center;text-align:center}
+.onb-body .em{font-size:70px;margin-bottom:18px}
+.onb-body h2{font-family:var(--serif);font-size:26px;margin:0 0 12px}
+.onb-body p{color:var(--text-dim);max-width:34ch;font-size:15.5px}
+.onb-foot{display:flex;align-items:center;gap:12px}
+.dots{display:flex;gap:7px;flex:1}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line-soft)}
+.dots i.on{background:var(--gold)}
+
+/* floating assistant btn */
+#asstBtn{position:fixed;bottom:22px;inset-inline-start:18px;z-index:45;border:1px solid var(--line);background:linear-gradient(120deg,var(--gold),var(--gold-soft));color:#1a1400;border-radius:16px;padding:12px 16px;font-weight:900;font-size:15px;box-shadow:0 8px 22px rgba(212,175,55,.3);display:flex;align-items:center;gap:7px}
+#asstBtn:active{transform:scale(.95)}
+
+@media print{
+  .topbar,.back,#asstBtn,.tabs,.btn-row,.slide-nav,.no-print{display:none!important}
+  body{background:#fff;color:#000}
+  .app{max-width:100%;padding:0}
+  .card,.phase,.slide,.q{break-inside:avoid;box-shadow:none;border-color:#ccc}
+}
+</style>
+</head>
+<body>
+
+<div id="toast"></div>
+
+<!-- Onboarding -->
+<div id="onb">
+  <div class="onb-body">
+    <div id="onbEm" class="em">🍎</div>
+    <h2 id="onbTitle"></h2>
+    <p id="onbText"></p>
+  </div>
+  <div class="onb-foot">
+    <div class="dots" id="onbDots"></div>
+    <button class="btn" onclick="onbSkip()">דלג</button>
+    <button class="cta" style="width:auto;padding:14px 26px" onclick="onbNext()" id="onbNext">הבא</button>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h3 id="mTitle"></h3>
+    <p id="mText"></p>
+    <div class="btn-row" style="justify-content:flex-end">
+      <button class="btn" onclick="closeModal(false)" id="mCancel">ביטול</button>
+      <button class="btn danger" onclick="closeModal(true)" id="mOk">אישור</button>
+    </div>
+  </div>
+</div>
+
+<div class="app">
+  <div class="topbar">
+    <div class="brand"><span class="apple">🍎</span> המורה שלי <b>AI</b></div>
+    <div class="sp"></div>
+    <div class="status-dot" id="aiDot" title="חיבור בינה"></div>
+    <button class="icon-btn" id="themeBtn" onclick="toggleMode()" title="יום/לילה">🌙</button>
+    <button class="icon-btn" onclick="go('settings')" title="הגדרות">⚙️</button>
+  </div>
+
+  <!-- HOME -->
+  <section class="screen active" id="s-home">
+    <div class="hero">
+      <div class="apple-lg">🍎</div>
+      <h1>שיעור שלם, בלחיצה אחת</h1>
+      <p>בחר מקצוע, כיתה ונושא — או העלה את חומר הלימוד שלך — וקבל מערך שיעור, מצגת, שאלות, דף עבודה ועוד, מוכן להעביר בכיתה.</p>
+    </div>
+    <div class="home-grid">
+      <button class="tile primary" onclick="startNew()">
+        <span class="em">✨</span>
+        <span class="tx"><b>צור שיעור חדש</b><span>מכל נושא או חומר לימוד</span></span>
+      </button>
+      <button class="tile" onclick="go('library')">
+        <span class="em">📚</span>
+        <span class="tx"><b>השיעורים שלי</b><span id="libCount">אין שיעורים שמורים עדיין</span></span>
+      </button>
+      <button class="tile" onclick="go('settings')">
+        <span class="em">⚙️</span>
+        <span class="tx"><b>הגדרות וחיבור בינה</b><span id="aiSub">חבר מפתח כדי להתחיל ליצור</span></span>
+      </button>
+      <button class="tile" onclick="go('about')">
+        <span class="em">ℹ️</span>
+        <span class="tx"><b>אודות ופרטיות</b><span>גרסה, מדריך ומדיניות פרטיות</span></span>
+      </button>
+    </div>
+    <div class="badge">מופעל על ידי <b>AppNest</b> · המורה שלי AI</div>
+  </section>
+
+  <!-- CREATE -->
+  <section class="screen" id="s-create">
+    <div class="screen-head">
+      <button class="back" onclick="go('home')">→ בית</button>
+      <div class="screen-title">מה נלמד היום?</div>
+    </div>
+
+    <div class="card">
+      <div class="row2">
+        <div class="field">
+          <label class="lb">מקצוע</label>
+          <select class="inp" id="fSubject"></select>
+        </div>
+        <div class="field">
+          <label class="lb">כיתה</label>
+          <select class="inp" id="fGrade"></select>
+        </div>
+      </div>
+      <div class="field">
+        <label class="lb">נושא השיעור</label>
+        <input class="inp" id="fTopic" placeholder="למשל: מחזור המים, חיבור עד 100, מלחמת העצמאות">
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label class="lb">משך השיעור</label>
+          <select class="inp" id="fDuration">
+            <option value="30">30 דקות</option>
+            <option value="45" selected>45 דקות</option>
+            <option value="60">60 דקות</option>
+            <option value="90">90 דקות (שיעור כפול)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="lb">רמת הכיתה</label>
+          <select class="inp" id="fLevel">
+            <option value="מתקשה">מתקשה</option>
+            <option value="בינונית" selected>בינונית</option>
+            <option value="חזקה">חזקה</option>
+            <option value="מעורבת">מעורבת</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>סגנון השיעור</h3>
+      <p class="hint">איך ייראה השיעור שהמערכת תבנה</p>
+      <div class="chips" id="styleChips"></div>
+    </div>
+
+    <div class="card">
+      <h3>התאם לכיתה שלי</h3>
+      <p class="hint">כדי שהשיעור יתאים למציאות בכיתה</p>
+      <div class="row2">
+        <div class="field">
+          <label class="lb">מספר תלמידים</label>
+          <input class="inp" id="fStudents" type="number" inputmode="numeric" value="28" min="1" max="45">
+        </div>
+        <div class="field">
+          <label class="lb" style="margin-bottom:10px">אמצעים בכיתה</label>
+          <div class="chips">
+            <button class="chip" id="optProjector" aria-pressed="true" onclick="toggleChip(this)">📽️ מקרן</button>
+            <button class="chip" id="optComputers" aria-pressed="false" onclick="toggleChip(this)">💻 מחשבים לתלמידים</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>חומר לימוד (לא חובה)</h3>
+      <p class="hint">העלה קובץ והשיעור ייבנה מהחומר שלך — PDF או Word</p>
+      <div class="drop" id="drop" onclick="fileInput.click()">
+        📎 גרור לכאן קובץ או לחץ לבחירה<br><span class="small">PDF · DOCX · TXT</span>
+      </div>
+      <input type="file" id="fileInput" accept=".pdf,.docx,.txt" hidden>
+      <div id="filePills"></div>
+    </div>
+
+    <div class="card">
+      <h3>מה ליצור?</h3>
+      <p class="hint">בחר את התוצרים שתרצה לשיעור</p>
+      <div class="cbx-grid" id="outputs"></div>
+    </div>
+
+    <button class="cta" id="genBtn" onclick="generate()">✨ צור שיעור</button>
+    <div class="disclaimer">⚠️ התוכן נוצר על ידי בינה מלאכותית והוא הצעה בלבד. עברו עליו והתאימו אותו לפני השיעור — האחריות הפדגוגית היא של המורה.</div>
+  </section>
+
+  <!-- LESSON VIEW -->
+  <section class="screen" id="s-lesson">
+    <div class="screen-head">
+      <button class="back" onclick="go('home')">→ בית</button>
+      <div class="screen-title" id="lessonTitle">השיעור</div>
+    </div>
+    <div id="lessonMeta" class="small" style="margin:-8px 0 14px"></div>
+    <div class="btn-row no-print" style="margin-bottom:14px">
+      <button class="btn gold" onclick="saveCurrentLesson()" id="saveBtn">💾 שמור לספרייה</button>
+      <button class="btn" onclick="window.print()">🖨️ הדפס / PDF</button>
+      <button class="btn" onclick="startNew()">✨ שיעור חדש</button>
+    </div>
+    <div class="tabs" id="lessonTabs"></div>
+    <div id="lessonPanes"></div>
+  </section>
+
+  <!-- LIBRARY -->
+  <section class="screen" id="s-library">
+    <div class="screen-head">
+      <button class="back" onclick="go('home')">→ בית</button>
+      <div class="screen-title">השיעורים שלי</div>
+    </div>
+    <div id="libList"></div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section class="screen" id="s-settings">
+    <div class="screen-head">
+      <button class="back" onclick="go('home')">→ בית</button>
+      <div class="screen-title">הגדרות</div>
+    </div>
+
+    <div class="card">
+      <h3>שם משתמש</h3>
+      <p class="hint">יופיע בשיתוף, בייצוא ובדוחות</p>
+      <input class="inp" id="setUsername" placeholder="השם / הכינוי שלך" oninput="saveUsername()">
+    </div>
+
+    <div class="card">
+      <h3>חיבור בינה (BYOK)</h3>
+      <p class="hint">האפליקציה משתמשת במפתח שלך, שנשמר מוצפן על המכשיר בלבד ולא עובר דרך שום שרת של AppNest — רק ישירות לספק שתבחר.</p>
+      <div id="provList"></div>
+      <div class="field" style="margin-top:14px">
+        <label class="lb">מפתח API</label>
+        <input class="inp" id="apiKey" type="password" placeholder="הדבק כאן את המפתח" autocomplete="off">
+        <div id="keyHelp" class="small" style="margin-top:8px"></div>
+      </div>
+      <div class="field">
+        <label class="lb">מודל</label>
+        <div style="display:flex;gap:9px">
+          <select class="inp" id="modelSel" style="flex:1"></select>
+          <button class="btn" onclick="refreshModels()" title="רענן רשימת מודלים">🔄</button>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn gold" onclick="testConnection()" id="testBtn">🔌 בדוק חיבור</button>
+        <button class="btn" onclick="saveAiConfig()">💾 שמור חיבור</button>
+        <button class="btn danger" onclick="disconnectAi()">נתק</button>
+      </div>
+      <div id="testResult" class="small" style="margin-top:10px"></div>
+    </div>
+
+    <div class="card">
+      <h3>גיבוי ושחזור</h3>
+      <p class="hint">גיבוי מלא של השיעורים וההגדרות. המפתח המוצפן אינו נכלל בגיבוי.</p>
+      <div class="btn-row">
+        <button class="btn" onclick="exportBackup()">⬇️ ייצא גיבוי (JSON)</button>
+        <button class="btn" onclick="importBackup()">⬆️ שחזר מגיבוי</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>תצוגה</h3>
+      <div class="btn-row"><button class="btn" onclick="toggleMode()" id="modeBtn2">🌙 מצב יום/לילה</button>
+      <button class="btn" onclick="showOnboarding(true)">📖 הצג מדריך שוב</button></div>
+    </div>
+
+    <div class="card">
+      <h3>מחיקת נתונים</h3>
+      <p class="hint">מוחק את כל השיעורים, ההגדרות והמפתח. אין חזרה.</p>
+      <button class="btn danger" onclick="factoryReset()">🗑️ מחק את כל הנתונים</button>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="screen" id="s-about">
+    <div class="screen-head">
+      <button class="back" onclick="go('home')">→ בית</button>
+      <div class="screen-title">אודות</div>
+    </div>
+    <div class="card" style="text-align:center">
+      <div style="font-size:54px">🍎</div>
+      <h3 style="font-size:22px;margin-top:6px">המורה שלי AI</h3>
+      <div class="small" id="aboutVer"></div>
+    </div>
+    <div class="card">
+      <div class="kv"><span>גרסה</span><span id="aboutVer2"></span></div>
+      <div class="kv"><span>פותח</span><span>Barak Aflalo</span></div>
+      <div class="kv"><span>פלטפורמה</span><span>PWA · HTML5</span></div>
+      <div class="kv"><span>אחסון</span><span>על המכשיר בלבד</span></div>
+      <div class="kv"><span>רישיון</span><span>© AppNest 2026</span></div>
+    </div>
+    <div class="card">
+      <div class="btn-row" style="flex-direction:column">
+        <button class="btn" onclick="shareApp()">📤 שתף את האפליקציה</button>
+        <a class="btn" href="mailto:appnest55@gmail.com?subject=משוב - המורה שלי AI" style="text-decoration:none;text-align:center">✉️ שלח משוב</a>
+        <button class="btn" onclick="showOnboarding(true)">📖 מדריך שימוש</button>
+        <a class="btn" href="privacy_policy.html" style="text-decoration:none;text-align:center">🔒 מדיניות פרטיות</a>
+        <a class="btn" href="https://barakaflalo.github.io/appnest" target="_blank" rel="noopener" style="text-decoration:none;text-align:center">🏪 חנות AppNest</a>
+      </div>
+    </div>
+    <div class="disclaimer">התוכן שנוצר באפליקציה הוא הצעה שנוצרה בבינה מלאכותית, אינו תחליף לשיקול דעת פדגוגי, ויש לעבור עליו ולהתאימו לפני השימוש בכיתה. פיצ'רי הבינה שולחים את הטקסט שהוזן לספק שבחרת.</div>
+  </section>
+</div>
+
+
+<script>
+/* ============================================================
+   המורה שלי AI · AppNest · single-file PWA
+   ============================================================ */
+const APP = { name:'המורה שלי AI', version:'1.0.0' };
+
+/* ---------- tiny helpers ---------- */
+const $ = id => document.getElementById(id);
+const el = (t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;};
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2600);}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function nowStr(){return new Date().toLocaleString('he-IL',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});}
+
+/* modal (promise-based confirm) */
+let _modalResolve=null;
+function confirmModal(title,text,okText='אישור',danger=true){
+  $('mTitle').textContent=title;$('mText').textContent=text;$('mOk').textContent=okText;
+  $('mOk').className='btn '+(danger?'danger':'gold');$('modalBg').classList.add('show');
+  return new Promise(res=>{_modalResolve=res;});
+}
+function closeModal(v){$('modalBg').classList.remove('show');if(_modalResolve){_modalResolve(v);_modalResolve=null;}}
+
+/* ---------- config data ---------- */
+const SUBJECTS = ['מדעים','חשבון','עברית','אנגלית','תנ״ך','היסטוריה','גיאוגרפיה','מולדת וחברה','אמנות','מוזיקה','חינוך גופני','כישורי חיים','מחשבים'];
+const GRADES = ["כיתה א'","כיתה ב'","כיתה ג'","כיתה ד'","כיתה ה'","כיתה ו'","כיתה ז'","כיתה ח'"];
+const STYLES = [
+  {id:'רגיל',em:'📖'},{id:'יצירתי',em:'🎨'},{id:'משחקי',em:'🎮'},
+  {id:'ניסויי',em:'🧪'},{id:'מאתגר',em:'🧠'},{id:'פשוט במיוחד',em:'👶'},{id:'עבודה בקבוצות',em:'👥'}
+];
+const OUTPUTS = [
+  {id:'lessonPlan',label:'מערך שיעור',em:'📋',always:true},
+  {id:'slides',label:'מצגת',em:'🖥️'},
+  {id:'quiz',label:'שאלות',em:'❓'},
+  {id:'worksheet',label:'דף עבודה',em:'📝'},
+  {id:'homework',label:'שיעורי בית',em:'🏠'},
+  {id:'groupActivity',label:'פעילות קבוצתית',em:'👥'},
+  {id:'shortTest',label:'מבחן קצר',em:'✅'},
+  {id:'game',label:'משחק כיתתי',em:'🎲'}
+];
+
+/* ---------- AI providers (golden rule: current default + fallback + live list) ---------- */
+const PROVIDERS = {
+  gemini:{ name:'Gemini (Google)', em:'🟢', tag:'free', tagLabel:'חינם',
+    help:'שכבה חינמית ללא כרטיס אשראי. צור מפתח ב־aistudio.google.com/app/apikey',
+    link:'https://aistudio.google.com/app/apikey',
+    defaultModel:'gemini-flash-latest',
+    fallbacks:['gemini-flash-latest','gemini-2.5-flash','gemini-2.0-flash','gemini-1.5-flash'] },
+  claude:{ name:'Claude (Anthropic)', em:'🟣', tag:'api', tagLabel:'API',
+    help:'הכי מדויק. צור מפתח ב־console.anthropic.com (בתשלום לפי שימוש).',
+    link:'https://console.anthropic.com/',
+    defaultModel:'claude-sonnet-4-5',
+    fallbacks:['claude-sonnet-4-5','claude-3-5-sonnet-latest','claude-3-5-haiku-latest'] },
+  openai:{ name:'ChatGPT (OpenAI)', em:'🔵', tag:'api', tagLabel:'API',
+    help:'צור מפתח ב־platform.openai.com (בתשלום לפי שימוש).',
+    link:'https://platform.openai.com/api-keys',
+    defaultModel:'gpt-4o-mini',
+    fallbacks:['gpt-4o-mini','gpt-4o','gpt-4.1-mini'] },
+  local:{ name:'AI במכשיר (Ollama / LM Studio)', em:'🖥️', tag:'local', tagLabel:'מקומי',
+    help:'פרטי ובלי עלות. הפעל Ollama מקומית. כתובת ברירת מחדל: http://localhost:11434/v1',
+    link:'https://ollama.com/',
+    defaultModel:'llama3.1', endpoint:'http://localhost:11434/v1',
+    fallbacks:[] },
+  custom:{ name:'Endpoint מותאם', em:'⚙️', tag:'api', tagLabel:'תואם-OpenAI',
+    help:'כל כתובת תואמת-OpenAI + מפתח אופציונלי.',
+    link:'', defaultModel:'', endpoint:'', fallbacks:[] }
+};
+
+/* ============================================================
+   STORAGE — IndexedDB (kv / media / secrets) + graceful fallback
+   ============================================================ */
+const DB_NAME='mymorehai', DB_VER=1;
+let _db=null, _memStore={};
+function openDB(){
+  return new Promise((resolve)=>{
+    if(!window.indexedDB){resolve(null);return;}
+    let req;
+    try{ req=indexedDB.open(DB_NAME,DB_VER); }catch(e){resolve(null);return;}
+    req.onupgradeneeded=e=>{
+      const db=e.target.result;
+      if(!db.objectStoreNames.contains('kv')) db.createObjectStore('kv');
+      if(!db.objectStoreNames.contains('media')) db.createObjectStore('media');
+      if(!db.objectStoreNames.contains('secrets')) db.createObjectStore('secrets');
+    };
+    req.onsuccess=e=>resolve(e.target.result);
+    req.onerror=()=>resolve(null);
+  });
+}
+function idbOp(store,mode,fn){
+  return new Promise((resolve,reject)=>{
+    if(!_db){reject('no-db');return;}
+    const tx=_db.transaction(store,mode);const os=tx.objectStore(store);
+    const r=fn(os);tx.oncomplete=()=>resolve(r&&r.result);tx.onerror=()=>reject(tx.error);
+  });
+}
+async function dbGet(store,key){
+  if(_db){try{return await idbOp(store,'readonly',os=>os.get(key));}catch(e){}}
+  try{const v=localStorage.getItem('mmh_'+store+'_'+key);return v?JSON.parse(v):undefined;}
+  catch(e){return _memStore[store+key];}
+}
+async function dbSet(store,key,val){
+  if(_db){try{await idbOp(store,'readwrite',os=>os.put(val,key));return true;}catch(e){}}
+  try{localStorage.setItem('mmh_'+store+'_'+key,JSON.stringify(val));return true;}
+  catch(e){_memStore[store+key]=val;return true;}
+}
+async function dbDel(store,key){
+  if(_db){try{await idbOp(store,'readwrite',os=>os.delete(key));}catch(e){}}
+  try{localStorage.removeItem('mmh_'+store+'_'+key);}catch(e){}
+  delete _memStore[store+key];
+}
+/* small prefs live in localStorage (mode, username) so they load instantly */
+function pref(k,v){ if(v===undefined){try{return localStorage.getItem('mmh_pref_'+k);}catch(e){return null;}} try{localStorage.setItem('mmh_pref_'+k,v);}catch(e){} }
+
+/* ============================================================
+   CRYPTO — encrypt API key at rest (AES-GCM 256, non-extractable)
+   ============================================================ */
+async function getCryptoKey(){
+  let raw=await dbGet('secrets','ckey');
+  if(raw){ try{return await crypto.subtle.importKey('jwk',raw,{name:'AES-GCM'},false,['encrypt','decrypt']);}catch(e){} }
+  const key=await crypto.subtle.generateKey({name:'AES-GCM',length:256},true,['encrypt','decrypt']);
+  const jwk=await crypto.subtle.exportKey('jwk',key);
+  await dbSet('secrets','ckey',jwk);
+  return await crypto.subtle.importKey('jwk',jwk,{name:'AES-GCM'},false,['encrypt','decrypt']);
+}
+async function encryptKey(text){
+  try{
+    const ck=await getCryptoKey();const iv=crypto.getRandomValues(new Uint8Array(12));
+    const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv},ck,new TextEncoder().encode(text));
+    return {iv:Array.from(iv),ct:Array.from(new Uint8Array(ct))};
+  }catch(e){ return {plain:text}; } // fallback if crypto unavailable
+}
+async function decryptKey(obj){
+  if(!obj) return '';
+  if(obj.plain!=null) return obj.plain;
+  try{
+    const ck=await getCryptoKey();
+    const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:new Uint8Array(obj.iv)},ck,new Uint8Array(obj.ct));
+    return new TextDecoder().decode(pt);
+  }catch(e){ return ''; }
+}
+
+/* ============================================================
+   AI CONFIG state + native calls per provider
+   ============================================================ */
+let AI = { provider:'gemini', model:'', endpoint:'', connected:false };
+let _apiKeyCache = '';
+
+function cleanKey(raw){ // handle multiple keys / hidden chars
+  if(!raw) return '';
+  return String(raw).split(/[\n,]/) .map(s=>s.trim()).filter(Boolean)[0]||'';
+}
+async function loadAiConfig(){
+  const cfg=await dbGet('kv','aiConfig');
+  if(cfg){ AI={...AI,...cfg}; }
+  const enc=await dbGet('secrets','apiKey');
+  _apiKeyCache=await decryptKey(enc);
+  AI.connected = !!(_apiKeyCache || AI.provider==='local');
+  updateAiIndicators();
+}
+async function persistAiConfig(){
+  await dbSet('kv','aiConfig',{provider:AI.provider,model:AI.model,endpoint:AI.endpoint,connected:AI.connected});
+}
+function updateAiIndicators(){
+  const on=AI.connected;
+  $('aiDot').classList.toggle('on',on);
+  $('aiSub').textContent = on ? ('מחובר · '+(PROVIDERS[AI.provider]?.name||'')) : 'חבר מפתח כדי להתחיל ליצור';
+}
+
+/* Build request per provider; returns text */
+async function callAI(prompt, {system='', json=false, maxTokens=4096}={}){
+  const key=_apiKeyCache;
+  const p=AI.provider;
+  const model=AI.model || PROVIDERS[p].defaultModel;
+  const tryModels=[model, ...(PROVIDERS[p].fallbacks||[])].filter((v,i,a)=>v&&a.indexOf(v)===i);
+
+  let lastErr=null;
+  for(const m of tryModels){
+    try{
+      if(p==='gemini') return await callGemini(m,key,prompt,system,json,maxTokens);
+      if(p==='claude') return await callClaude(m,key,prompt,system,maxTokens);
+      // openai / local / custom = OpenAI-compatible
+      return await callOpenAICompat(p,m,key,prompt,system,json,maxTokens);
+    }catch(e){
+      lastErr=e;
+      if(!/404|not found|model|decommission|unavailable/i.test(String(e.message||e))) throw e;
+      // else fall through to next model
+    }
+  }
+  throw lastErr||new Error('כל המודלים נכשלו');
+}
+
+async function callGemini(model,key,prompt,system,json,maxTokens){
+  const url='https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(model)+':generateContent?key='+encodeURIComponent(key);
+  const body={
+    contents:[{role:'user',parts:[{text:prompt}]}],
+    generationConfig:{maxOutputTokens:maxTokens,temperature:0.8}
+  };
+  if(system) body.systemInstruction={parts:[{text:system}]};
+  if(json) body.generationConfig.responseMimeType='application/json';
+  const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(!r.ok){ const t=await r.text().catch(()=>''); throw new Error('Gemini '+r.status+' '+t.slice(0,160)); }
+  const d=await r.json();
+  const parts=d?.candidates?.[0]?.content?.parts||[];
+  return parts.map(x=>x.text||'').join('').trim();
+}
+
+async function callClaude(model,key,prompt,system,maxTokens){
+  const body={model,max_tokens:maxTokens,messages:[{role:'user',content:prompt}]};
+  if(system) body.system=system;
+  const r=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify(body)
+  });
+  if(!r.ok){ const t=await r.text().catch(()=>''); throw new Error('Claude '+r.status+' '+t.slice(0,160)); }
+  const d=await r.json();
+  return (d.content||[]).map(x=>x.text||'').join('').trim();
+}
+
+async function callOpenAICompat(p,model,key,prompt,system,json,maxTokens){
+  let base = p==='openai' ? 'https://api.openai.com/v1'
+           : (AI.endpoint || PROVIDERS[p].endpoint || 'http://localhost:11434/v1');
+  base=base.replace(/\/+$/,'');
+  const messages=[]; if(system) messages.push({role:'system',content:system});
+  messages.push({role:'user',content:prompt});
+  const body={model,messages,max_tokens:maxTokens,temperature:0.8};
+  if(json) body.response_format={type:'json_object'};
+  const headers={'Content-Type':'application/json'};
+  if(key) headers['Authorization']='Bearer '+key;
+  const r=await fetch(base+'/chat/completions',{method:'POST',headers,body:JSON.stringify(body)});
+  if(!r.ok){ const t=await r.text().catch(()=>''); throw new Error((p)+' '+r.status+' '+t.slice(0,160)); }
+  const d=await r.json();
+  return (d.choices?.[0]?.message?.content||'').trim();
+}
+
+/* live model list per golden rule */
+async function fetchModelList(){
+  const key=_apiKeyCache, p=AI.provider;
+  if(p==='gemini'){
+    const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?key='+encodeURIComponent(key));
+    if(!r.ok) throw new Error('שגיאה '+r.status);
+    const d=await r.json();
+    return (d.models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent'))
+      .map(m=>m.name.replace('models/','')).filter(n=>/gemini/i.test(n));
+  }
+  if(p==='openai'||p==='local'||p==='custom'){
+    let base = p==='openai'?'https://api.openai.com/v1':(AI.endpoint||PROVIDERS[p].endpoint||'http://localhost:11434/v1');
+    base=base.replace(/\/+$/,'');
+    const headers={}; if(key) headers['Authorization']='Bearer '+key;
+    const r=await fetch(base+'/models',{headers});
+    if(!r.ok) throw new Error('שגיאה '+r.status);
+    const d=await r.json();
+    return (d.data||[]).map(m=>m.id);
+  }
+  if(p==='claude'){
+    try{
+      const r=await fetch('https://api.anthropic.com/v1/models',{headers:{'x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'}});
+      if(r.ok){const d=await r.json();return (d.data||[]).map(m=>m.id);}
+    }catch(e){}
+    return PROVIDERS.claude.fallbacks;
+  }
+  return [];
+}
+
+/* ============================================================
+   MATERIAL INGESTION — PDF (pdf.js) / DOCX (mammoth) / TXT
+   ============================================================ */
+let _materialText='', _materialName='';
+const CDN = {
+  pdfjs:['https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.mjs'],
+  pdfworker:'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.mjs',
+  mammoth:['https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js','https://unpkg.com/mammoth@1.6.0/mammoth.browser.min.js']
+};
+function loadScript(urls){
+  const list=Array.isArray(urls)?urls:[urls];
+  return new Promise((resolve,reject)=>{
+    let i=0;
+    const tryNext=()=>{
+      if(i>=list.length){reject(new Error('טעינת ספרייה נכשלה'));return;}
+      const s=document.createElement('script');s.src=list[i++];
+      s.onload=resolve;s.onerror=tryNext;document.head.appendChild(s);
+    };tryNext();
+  });
+}
+async function extractFile(file){
+  const name=file.name.toLowerCase();
+  if(name.endsWith('.txt')) return await file.text();
+  if(name.endsWith('.docx')){
+    if(!window.mammoth) await loadScript(CDN.mammoth);
+    const buf=await file.arrayBuffer();
+    const res=await window.mammoth.extractRawText({arrayBuffer:buf});
+    return res.value||'';
+  }
+  if(name.endsWith('.pdf')){
+    if(!window._pdfjs){
+      window._pdfjs=await import(CDN.pdfjs[0]);
+      window._pdfjs.GlobalWorkerOptions.workerSrc=CDN.pdfworker;
+    }
+    const buf=await file.arrayBuffer();
+    const pdf=await window._pdfjs.getDocument({data:buf}).promise;
+    let out='';
+    const max=Math.min(pdf.numPages,40);
+    for(let i=1;i<=max;i++){
+      const page=await pdf.getPage(i);
+      const tc=await page.getTextContent();
+      out+=tc.items.map(x=>x.str).join(' ')+'\n\n';
+    }
+    if(out.replace(/\s/g,'').length<20) throw new Error('scanned');
+    return out;
+  }
+  throw new Error('סוג קובץ לא נתמך');
+}
+async function handleFile(file){
+  if(!file) return;
+  const pills=$('filePills');
+  pills.innerHTML='<div class="file-pill">⏳ מעבד את הקובץ…</div>';
+  try{
+    const txt=await extractFile(file);
+    _materialText=txt.slice(0,24000); _materialName=file.name;
+    pills.innerHTML='';
+    const pill=el('div','file-pill','📄 '+esc(file.name)+' · '+Math.round(_materialText.length/100)/10+'K תווים');
+    const x=el('button','x','×');x.onclick=()=>{_materialText='';_materialName='';pills.innerHTML='';};
+    pill.appendChild(x);pills.appendChild(pill);
+    toast('החומר נטען — השיעור ייבנה ממנו');
+  }catch(e){
+    _materialText='';_materialName='';
+    if(String(e.message).includes('scanned'))
+      pills.innerHTML='<div class="file-pill" style="border-color:rgba(217,100,90,.5)">⚠️ ה־PDF נראה סרוק (תמונה) ואין בו שכבת טקסט. הקלד את הנושא ידנית.</div>';
+    else pills.innerHTML='<div class="file-pill" style="border-color:rgba(217,100,90,.5)">⚠️ '+esc(e.message||'שגיאה')+'</div>';
+  }
+}
+
+/* ============================================================
+   LESSON GENERATION — build prompt, call AI, parse JSON
+   ============================================================ */
+function collectForm(){
+  const styles=[...document.querySelectorAll('#styleChips .chip[aria-pressed="true"]')].map(c=>c.dataset.id);
+  const outs=[...document.querySelectorAll('#outputs .cbx[aria-pressed="true"]')].map(c=>c.dataset.id);
+  if(!outs.includes('lessonPlan')) outs.unshift('lessonPlan');
+  return {
+    subject:$('fSubject').value, grade:$('fGrade').value, topic:$('fTopic').value.trim(),
+    duration:$('fDuration').value, level:$('fLevel').value, students:$('fStudents').value,
+    projector:$('optProjector').getAttribute('aria-pressed')==='true',
+    computers:$('optComputers').getAttribute('aria-pressed')==='true',
+    styles, outputs:outs
+  };
+}
+function buildPrompt(f){
+  const labels={lessonPlan:'מערך שיעור מפורט (phase, minutes, content)',slides:'מצגת (מערך slides: title, bullets[], notes)',
+    quiz:'שאלות רב-ברירה (quiz: q, options[4], answer=אינדקס הנכון, explain)',worksheet:'דף עבודה (worksheet: מערך של {instruction, items[]})',
+    homework:'שיעורי בית (homework: מערך משימות)',groupActivity:'פעילות קבוצתית (groupActivity: {title, materials[], steps[]})',
+    shortTest:'מבחן קצר (shortTest: q, options[4], answer)',game:'משחק כיתתי (game: {title, howToPlay[], materials[]})'};
+  const want=f.outputs.map(o=>labels[o]).filter(Boolean).join('; ');
+  let mat = _materialText ? ('\n\nחומר לימוד שהמורה העלה (בנה את השיעור בעיקר מתוכו):\n"""\n'+_materialText+'\n"""') : '';
+  return `אתה מורה מומחה בבית ספר יסודי בישראל. בנה שיעור בעברית תקנית ומלאה, מותאם לגיל.
+פרטי השיעור:
+- מקצוע: ${f.subject}
+- ${f.grade}
+- נושא: ${f.topic||'(הסק מהחומר שהועלה)'}
+- משך: ${f.duration} דקות
+- רמת הכיתה: ${f.level}
+- מספר תלמידים: ${f.students}
+- ${f.projector?'יש מקרן':'אין מקרן'}; ${f.computers?'יש מחשבים לתלמידים':'אין מחשבים לתלמידים — התאם פעילויות ללא מחשב'}
+- סגנון: ${f.styles.join(', ')||'רגיל'}
+
+התאם את השפה, אורך המשפטים ורמת השאלות ל${f.grade}. השתמש בעברית בלבד. השאר מונחים לועזיים רק כשאין ברירה.${mat}
+
+צור אך ורק את התוצרים הבאים: ${want}.
+החזר JSON תקין בלבד, ללא טקסט לפני או אחרי, ללא סימוני markdown, במבנה:
+{"title":"כותרת השיעור","objectives":["מטרה 1","מטרה 2"], "lessonPlan":[{"phase":"פתיחה","minutes":5,"content":"..."}]${f.outputs.includes('slides')?',"slides":[{"title":"...","bullets":["..."],"notes":"..."}]':''}${f.outputs.includes('quiz')?',"quiz":[{"q":"...","options":["","","",""],"answer":0,"explain":"..."}]':''}${f.outputs.includes('worksheet')?',"worksheet":[{"instruction":"...","items":["..."]}]':''}${f.outputs.includes('homework')?',"homework":["..."]':''}${f.outputs.includes('groupActivity')?',"groupActivity":{"title":"...","materials":["..."],"steps":["..."]}':''}${f.outputs.includes('shortTest')?',"shortTest":[{"q":"...","options":["","","",""],"answer":0}]':''}${f.outputs.includes('game')?',"game":{"title":"...","materials":["..."],"howToPlay":["..."]}':''}}`;
+}
+function parseJSON(txt){
+  let s=txt.trim().replace(/^```(json)?/i,'').replace(/```$/,'').trim();
+  const a=s.indexOf('{'), b=s.lastIndexOf('}');
+  if(a>=0&&b>a) s=s.slice(a,b+1);
+  return JSON.parse(s);
+}
+
+let currentLesson=null, currentForm=null, currentSavedId=null;
+async function generate(){
+  const f=collectForm();
+  if(!AI.connected){ toast('קודם חבר מפתח בינה בהגדרות'); go('settings'); return; }
+  if(!f.topic && !_materialText){ toast('כתוב נושא או העלה חומר לימוד'); return; }
+  currentForm=f; currentSavedId=null;
+  go('lesson');
+  $('lessonTitle').textContent='יוצר שיעור…';
+  $('lessonMeta').textContent='';
+  $('lessonTabs').innerHTML='';
+  $('lessonPanes').innerHTML='<div class="gen-status"><div class="big">🍎</div><div><span class="spinner" style="border-top-color:var(--gold);border-color:var(--line)"></span> בונה את השיעור שלך… זה עשוי לקחת עד דקה.</div></div>';
+  try{
+    const raw=await callAI(buildPrompt(f),{json:true,maxTokens:6000,system:'אתה עוזר הוראה. החזר JSON תקין בלבד בעברית.'});
+    const data=parseJSON(raw);
+    currentLesson=data;
+    renderLesson(data,f);
+    $('saveBtn').textContent='💾 שמור לספרייה';
+  }catch(e){
+    $('lessonPanes').innerHTML='<div class="card"><h3>לא הצלחתי ליצור את השיעור</h3><p class="hint">'+esc(e.message||'שגיאה')+'</p><div class="btn-row"><button class="btn gold" onclick="generate()">נסה שוב</button><button class="btn" onclick="go(\'create\')">חזרה לטופס</button></div></div>';
+    $('lessonTitle').textContent='שגיאה';
+  }
+}
+
+/* regenerate one section, optionally easier */
+async function regenSection(key,easier){
+  const f=currentForm; if(!f) return;
+  const map={slides:'מצגת',quiz:'שאלות',worksheet:'דף עבודה',homework:'שיעורי בית',groupActivity:'פעילות קבוצתית',shortTest:'מבחן קצר',lessonPlan:'מערך השיעור',game:'משחק'};
+  const pane=$('pane-'+key); if(pane) pane.style.opacity=.4;
+  toast('יוצר מחדש: '+(map[key]||key));
+  const instr=`בנה מחדש רק את החלק "${map[key]||key}" של השיעור על "${f.topic}" ל${f.grade}${easier?', והפוך אותו לקל ופשוט יותר':''}. החזר JSON תקין בלבד עם המפתח "${key}" בלבד, באותו מבנה כמו קודם, בעברית.`;
+  try{
+    const raw=await callAI(instr,{json:true,maxTokens:3000,system:'החזר JSON תקין בלבד.'});
+    const data=parseJSON(raw);
+    if(data[key]!==undefined){ currentLesson[key]=data[key]; renderLesson(currentLesson,f,key); }
+    else toast('לא התקבל תוכן — נסה שוב');
+  }catch(e){ toast('שגיאה ביצירה מחדש'); if(pane)pane.style.opacity=1; }
+}
+
+/* ============================================================
+   RENDER LESSON
+   ============================================================ */
+function renderLesson(d,f,onlyKey){
+  $('lessonTitle').textContent=d.title||('שיעור ב'+f.subject);
+  $('lessonMeta').textContent=[f.subject,f.grade,f.duration+' דק׳',f.styles.join(', ')].filter(Boolean).join(' · ');
+  const order=['lessonPlan','slides','quiz','worksheet','homework','groupActivity','shortTest','game'];
+  const present=order.filter(k=>d[k]!==undefined && f.outputs.includes(k));
+  const names={lessonPlan:'📋 מערך',slides:'🖥️ מצגת',quiz:'❓ שאלות',worksheet:'📝 דף עבודה',homework:'🏠 ש. בית',groupActivity:'👥 קבוצתית',shortTest:'✅ מבחן',game:'🎲 משחק'};
+
+  if(!onlyKey){
+    const tabs=$('lessonTabs');tabs.innerHTML='';
+    const panes=$('lessonPanes');panes.innerHTML='';
+    // objectives block first (part of lesson plan pane)
+    present.forEach((k,i)=>{
+      const t=el('button','tab'+(i===0?' active':''),names[k]||k);t.onclick=()=>switchTab(k);tabs.appendChild(t);
+      const pane=el('div','pane'+(i===0?' active':''));pane.id='pane-'+k;
+      pane.appendChild(renderPane(k,d,f));
+      panes.appendChild(pane);
+    });
+  } else {
+    const pane=$('pane-'+onlyKey); if(pane){pane.style.opacity=1;pane.innerHTML='';pane.appendChild(renderPane(onlyKey,d,f));}
+  }
+}
+function switchTab(k){
+  document.querySelectorAll('#lessonTabs .tab').forEach(t=>t.classList.toggle('active',t.textContent.includes(({lessonPlan:'מערך',slides:'מצגת',quiz:'שאלות',worksheet:'דף עבודה',homework:'ש. בית',groupActivity:'קבוצתית',shortTest:'מבחן',game:'משחק'})[k])));
+  document.querySelectorAll('#lessonPanes .pane').forEach(p=>p.classList.toggle('active',p.id==='pane-'+k));
+}
+function regenBar(key){
+  const bar=el('div','btn-row no-print');bar.style.margin='4px 0 14px';
+  const b1=el('button','btn','🔄 צור מחדש');b1.onclick=()=>regenSection(key,false);
+  const b2=el('button','btn gold','👶 הקל');b2.onclick=()=>regenSection(key,true);
+  bar.appendChild(b1);bar.appendChild(b2);return bar;
+}
+function renderPane(k,d,f){
+  const wrap=el('div');
+  if(k!=='lessonPlan') wrap.appendChild(regenBar(k));
+  if(k==='lessonPlan'){
+    if(d.objectives&&d.objectives.length){
+      const c=el('div','card');c.appendChild(el('h3',null,'🎯 מטרות השיעור'));
+      const ul=el('ul','obj',d.objectives.map(o=>'<li>'+esc(o)+'</li>').join(''));c.appendChild(ul);wrap.appendChild(c);
+    }
+    (d.lessonPlan||[]).forEach(ph=>{
+      const p=el('div','phase');
+      p.innerHTML='<div class="ph-top"><span class="min">'+esc(ph.minutes||'')+' דק׳</span><b>'+esc(ph.phase||'')+'</b></div><div>'+esc(ph.content||'').replace(/\n/g,'<br>')+'</div>';
+      wrap.appendChild(p);
+    });
+    wrap.appendChild(regenBar('lessonPlan'));
+  }
+  else if(k==='slides'){ wrap.appendChild(renderSlides(d.slides||[])); }
+  else if(k==='quiz'||k==='shortTest'){ wrap.appendChild(renderQuiz(d[k]||[],k==='shortTest')); }
+  else if(k==='worksheet'){
+    (d.worksheet||[]).forEach((w,i)=>{
+      const c=el('div','card');
+      c.innerHTML='<h3>'+(i+1)+'. '+esc(w.instruction||'')+'</h3>';
+      const ul=el('ul','obj',(w.items||[]).map(it=>'<li>'+esc(it)+'</li>').join(''));c.appendChild(ul);
+      wrap.appendChild(c);
+    });
+  }
+  else if(k==='homework'){
+    const c=el('div','card');c.appendChild(el('h3',null,'🏠 שיעורי בית'));
+    c.appendChild(el('ul','obj',(d.homework||[]).map(h=>'<li>'+esc(h)+'</li>').join('')));wrap.appendChild(c);
+  }
+  else if(k==='groupActivity'){
+    const g=d.groupActivity||{};const c=el('div','card');
+    c.innerHTML='<h3>👥 '+esc(g.title||'פעילות קבוצתית')+'</h3>';
+    if(g.materials&&g.materials.length){c.innerHTML+='<p class="hint">חומרים: '+g.materials.map(esc).join(', ')+'</p>';}
+    c.appendChild(el('ol','obj',(g.steps||[]).map(s=>'<li>'+esc(s)+'</li>').join('')));wrap.appendChild(c);
+  }
+  else if(k==='game'){
+    const g=d.game||{};const c=el('div','card');
+    c.innerHTML='<h3>🎲 '+esc(g.title||'משחק כיתתי')+'</h3>';
+    if(g.materials&&g.materials.length){c.innerHTML+='<p class="hint">חומרים: '+g.materials.map(esc).join(', ')+'</p>';}
+    c.appendChild(el('ol','obj',(g.howToPlay||[]).map(s=>'<li>'+esc(s)+'</li>').join('')));wrap.appendChild(c);
+  }
+  return wrap;
+}
+function renderSlides(slides){
+  const box=el('div');let idx=0;
+  const view=el('div');const nav=el('div','slide-nav');
+  const prev=el('button','n','›'),next=el('button','n','‹'),cnt=el('div','slide-count');
+  function draw(){
+    const s=slides[idx]||{};
+    view.innerHTML='<div class="slide"><h4>'+esc(s.title||'')+'</h4><ul>'+(s.bullets||[]).map(b=>'<li>'+esc(b)+'</li>').join('')+'</ul>'+(s.notes?'<div class="notes">📝 הערות למורה: '+esc(s.notes)+'</div>':'')+'</div>';
+    cnt.textContent=(idx+1)+' / '+slides.length;prev.disabled=idx===0;next.disabled=idx===slides.length-1;
+  }
+  prev.onclick=()=>{if(idx>0){idx--;draw();}};next.onclick=()=>{if(idx<slides.length-1){idx++;draw();}};
+  nav.appendChild(next);nav.appendChild(cnt);nav.appendChild(prev);
+  box.appendChild(view);box.appendChild(nav);
+  // printable all-slides (hidden on screen, shown on print)
+  const pr=el('div','no-screen');pr.style.display='none';
+  box.appendChild(pr);
+  draw();
+  if(!slides.length) view.innerHTML='<div class="card"><p class="hint">אין שקופיות</p></div>';
+  return box;
+}
+function renderQuiz(items,isTest){
+  const box=el('div');let score=0,answered=0;
+  const scoreEl=el('div','quiz-score');scoreEl.style.display='none';
+  items.forEach((q,qi)=>{
+    const card=el('div','q');
+    card.innerHTML='<div class="qt">'+(qi+1)+'. '+esc(q.q||'')+'</div>';
+    (q.options||[]).forEach((opt,oi)=>{
+      const b=el('button','opt',esc(opt));
+      b.onclick=()=>{
+        if(card.dataset.done)return;card.dataset.done='1';answered++;
+        [...card.querySelectorAll('.opt')].forEach(x=>x.classList.add('disabled'));
+        if(oi===q.answer){b.classList.add('correct');score++;}
+        else{b.classList.add('wrong');const c=card.querySelectorAll('.opt')[q.answer];if(c)c.classList.add('correct');}
+        if(q.explain&&!isTest){const e=el('div','explain','💡 '+esc(q.explain));card.appendChild(e);}
+        if(answered===items.length){scoreEl.style.display='block';scoreEl.textContent='צדקת ב־'+score+' מתוך '+items.length+' 🎉';}
+      };
+      card.appendChild(b);
+    });
+    box.appendChild(card);
+  });
+  if(!items.length) box.innerHTML='<div class="card"><p class="hint">אין שאלות</p></div>';
+  box.appendChild(scoreEl);
+  return box;
+}
+
+/* ============================================================
+   LIBRARY (saved lessons in IndexedDB kv:lessons)
+   ============================================================ */
+async function getLessons(){ return (await dbGet('kv','lessons'))||[]; }
+async function saveCurrentLesson(){
+  if(!currentLesson) return;
+  const lessons=await getLessons();
+  const rec={id:currentSavedId||('L'+Date.now()),title:currentLesson.title||'שיעור',subject:currentForm.subject,grade:currentForm.grade,
+    date:nowStr(),lesson:currentLesson,form:currentForm};
+  const ix=lessons.findIndex(l=>l.id===rec.id);
+  if(ix>=0) lessons[ix]=rec; else lessons.unshift(rec);
+  currentSavedId=rec.id;
+  await dbSet('kv','lessons',lessons);
+  $('saveBtn').textContent='✓ נשמר';
+  toast('השיעור נשמר לספרייה');
+  refreshLibCount();
+}
+async function refreshLibCount(){
+  const n=(await getLessons()).length;
+  $('libCount').textContent = n?('נשמרו '+n+' שיעורים'):'אין שיעורים שמורים עדיין';
+}
+async function renderLibrary(){
+  const list=$('libList');const lessons=await getLessons();
+  if(!lessons.length){ list.innerHTML='<div class="card" style="text-align:center"><div style="font-size:40px">📚</div><p class="hint">עדיין אין שיעורים שמורים. צור שיעור ולחץ "שמור לספרייה".</p><button class="cta" style="margin-top:6px" onclick="startNew()">✨ צור שיעור חדש</button></div>'; return; }
+  list.innerHTML='';
+  lessons.forEach(l=>{
+    const row=el('button','lrow');
+    row.innerHTML='<span class="em">🍎</span><span class="meta"><b>'+esc(l.title)+'</b><span>'+esc(l.subject)+' · '+esc(l.grade)+' · '+esc(l.date)+'</span></span><span class="go">‹</span>';
+    row.onclick=()=>openLesson(l.id);
+    // long-press to delete
+    let pt;row.addEventListener('touchstart',()=>{pt=setTimeout(()=>delLesson(l.id),650);},{passive:true});
+    row.addEventListener('touchend',()=>clearTimeout(pt));
+    list.appendChild(row);
+  });
+}
+async function openLesson(id){
+  const lessons=await getLessons();const l=lessons.find(x=>x.id===id);if(!l)return;
+  currentLesson=l.lesson;currentForm=l.form;currentSavedId=l.id;
+  go('lesson');renderLesson(l.lesson,l.form);$('saveBtn').textContent='✓ נשמר';
+}
+async function delLesson(id){
+  const ok=await confirmModal('למחוק שיעור?','השיעור יימחק מהספרייה לצמיתות.','מחק');if(!ok)return;
+  let lessons=await getLessons();lessons=lessons.filter(l=>l.id!==id);
+  await dbSet('kv','lessons',lessons);renderLibrary();refreshLibCount();toast('נמחק');
+}
+
+/* ============================================================
+   SETTINGS / AI UI
+   ============================================================ */
+function renderProviders(){
+  const box=$('provList');box.innerHTML='';
+  Object.entries(PROVIDERS).forEach(([id,p])=>{
+    const b=el('button','prov');b.setAttribute('aria-pressed',AI.provider===id);
+    b.innerHTML='<span class="em">'+p.em+'</span><span class="pv"><b>'+esc(p.name)+'</b><span>'+esc(p.tagLabel)+'</span></span><span class="tag '+p.tag+'">'+p.tagLabel+'</span>';
+    b.onclick=()=>{AI.provider=id;AI.model=p.defaultModel;AI.endpoint=p.endpoint||'';renderProviders();fillModelSelect();showKeyHelp();};
+    box.appendChild(b);
+  });
+  showKeyHelp();fillModelSelect();
+}
+function showKeyHelp(){
+  const p=PROVIDERS[AI.provider];
+  $('keyHelp').innerHTML=esc(p.help)+(p.link?' · <a class="link" href="'+p.link+'" target="_blank" rel="noopener">פתח</a>':'');
+  $('apiKey').placeholder = AI.provider==='local' ? '(לרוב לא צריך מפתח)' : 'הדבק כאן את המפתח';
+}
+function fillModelSelect(list){
+  const sel=$('modelSel');sel.innerHTML='';
+  const p=PROVIDERS[AI.provider];
+  const models=list&&list.length?list:[p.defaultModel,...p.fallbacks].filter((v,i,a)=>v&&a.indexOf(v)===i);
+  models.forEach(m=>{const o=el('option',null,m);o.value=m;sel.appendChild(o);});
+  if(AI.model&&![...sel.options].some(o=>o.value===AI.model)){const o=el('option',null,AI.model);o.value=AI.model;sel.insertBefore(o,sel.firstChild);}
+  sel.value=AI.model||p.defaultModel;
+}
+async function refreshModels(){
+  if(!cleanKey($('apiKey').value)&&AI.provider!=='local'&&AI.provider!=='custom'){toast('הזן מפתח קודם');return;}
+  _apiKeyCache=cleanKey($('apiKey').value)||_apiKeyCache;
+  toast('מרענן רשימת מודלים…');
+  try{const list=await fetchModelList();if(list.length){fillModelSelect(list);toast('נמצאו '+list.length+' מודלים');}else toast('לא נמצאו מודלים');}
+  catch(e){toast('שגיאה: '+(e.message||''));}
+}
+async function testConnection(){
+  const k=cleanKey($('apiKey').value);
+  if(!k&&AI.provider!=='local'&&AI.provider!=='custom'){$('testResult').innerHTML='<span style="color:var(--danger)">חסר מפתח</span>';return;}
+  _apiKeyCache=k||_apiKeyCache;AI.model=$('modelSel').value;
+  $('testBtn').innerHTML='<span class="spinner"></span> בודק…';$('testResult').textContent='';
+  try{
+    const r=await callAI('החזר בדיוק את המילה: תקין',{maxTokens:20});
+    $('testResult').innerHTML='<span style="color:var(--ok)">✓ החיבור עובד ('+esc(AI.model)+')</span>';
+  }catch(e){$('testResult').innerHTML='<span style="color:var(--danger)">✗ '+esc((e.message||'נכשל').slice(0,120))+'</span>';}
+  $('testBtn').innerHTML='🔌 בדוק חיבור';
+}
+async function saveAiConfig(){
+  const k=cleanKey($('apiKey').value);
+  AI.model=$('modelSel').value;AI.endpoint=AI.endpoint||PROVIDERS[AI.provider].endpoint||'';
+  if(k){ await dbSet('secrets','apiKey',await encryptKey(k)); _apiKeyCache=k; }
+  AI.connected=!!(_apiKeyCache||AI.provider==='local');
+  await persistAiConfig();updateAiIndicators();
+  toast('החיבור נשמר');
+}
+async function disconnectAi(){
+  await dbDel('secrets','apiKey');_apiKeyCache='';AI.connected=false;
+  $('apiKey').value='';await persistAiConfig();updateAiIndicators();toast('נותק');
+}
+function saveUsername(){ pref('username',$('setUsername').value); }
+
+/* ============================================================
+   BACKUP / RESTORE
+   ============================================================ */
+async function exportBackup(){
+  const data={app:APP.name,version:APP.version,exported:nowStr(),username:pref('username')||'',
+    lessons:await getLessons(),aiConfig:{provider:AI.provider,model:AI.model,endpoint:AI.endpoint}};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='morehai-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();
+  toast('הגיבוי יוצא (בלי המפתח)');
+}
+function importBackup(){
+  const inp=document.createElement('input');inp.type='file';inp.accept='.json';
+  inp.onchange=async()=>{
+    const f=inp.files[0];if(!f)return;
+    const ok=await confirmModal('לשחזר גיבוי?','הפעולה תחליף את השיעורים הקיימים.','שחזר',false);if(!ok)return;
+    try{
+      const data=JSON.parse(await f.text());
+      if(data.lessons) await dbSet('kv','lessons',data.lessons);
+      if(data.username) pref('username',data.username);
+      if(data.aiConfig){AI={...AI,...data.aiConfig};await persistAiConfig();}
+      toast('שוחזר בהצלחה');refreshLibCount();renderProviders();$('setUsername').value=pref('username')||'';
+    }catch(e){toast('קובץ גיבוי לא תקין');}
+  };inp.click();
+}
+async function factoryReset(){
+  const ok=await confirmModal('למחוק את כל הנתונים?','כל השיעורים, ההגדרות והמפתח יימחקו. אין חזרה.','מחק הכל');if(!ok)return;
+  const ok2=await confirmModal('בטוח לגמרי?','זו פעולה בלתי הפיכה.','כן, מחק');if(!ok2)return;
+  await dbDel('kv','lessons');await dbDel('kv','aiConfig');await dbDel('secrets','apiKey');await dbDel('secrets','ckey');
+  try{Object.keys(localStorage).filter(k=>k.startsWith('mmh_')).forEach(k=>localStorage.removeItem(k));}catch(e){}
+  location.reload();
+}
+
+/* ============================================================
+   NAVIGATION / UI
+   ============================================================ */
+const SCREENS=['home','create','lesson','library','settings','about'];
+function go(name){
+  SCREENS.forEach(s=>$('s-'+s).classList.toggle('active',s===name));
+  window.scrollTo(0,0);
+  if(name==='library') renderLibrary();
+  if(name==='settings'){renderProviders();$('setUsername').value=pref('username')||'';}
+}
+function startNew(){ go('create'); }
+function toggleChip(b){ b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true'); }
+
+/* theme */
+function applyMode(m){
+  document.documentElement.setAttribute('data-mode',m);
+  $('themeBtn').textContent=m==='day'?'☀️':'🌙';
+  document.querySelector('meta[name=theme-color]').setAttribute('content',m==='day'?'#f3efe4':'#0d0d0d');
+  pref('mode',m);
+}
+function toggleMode(){ applyMode(document.documentElement.getAttribute('data-mode')==='day'?'night':'day'); }
+
+/* ---------- build dynamic form controls ---------- */
+function buildForm(){
+  $('fSubject').innerHTML=SUBJECTS.map(s=>'<option>'+s+'</option>').join('');
+  $('fGrade').innerHTML=GRADES.map((g,i)=>'<option'+(i===3?' selected':'')+'>'+g+'</option>').join('');
+  $('styleChips').innerHTML='';
+  STYLES.forEach((s,i)=>{const c=el('button','chip',s.em+' '+s.id);c.dataset.id=s.id;c.setAttribute('aria-pressed',i===0);c.onclick=()=>toggleChip(c);$('styleChips').appendChild(c);});
+  $('outputs').innerHTML='';
+  OUTPUTS.forEach(o=>{
+    const c=el('button','cbx');c.dataset.id=o.id;c.setAttribute('aria-pressed', o.always||['slides','quiz','worksheet'].includes(o.id));
+    c.innerHTML='<span class="box">✓</span><span class="em">'+o.em+'</span>'+o.label;
+    c.onclick=()=>{ if(o.always){toast('מערך השיעור נכלל תמיד');return;} toggleChip(c); };
+    $('outputs').appendChild(c);
+  });
+}
+
+/* ---------- onboarding ---------- */
+const ONB=[
+  {em:'🍎',t:'ברוך הבא ל"המורה שלי AI"',x:'בנה שיעורים שלמים בעברית — מערך, מצגת, שאלות ודף עבודה — בלחיצה אחת.'},
+  {em:'🔌',t:'חבר בינה פעם אחת',x:'בהגדרות, חבר מפתח (Gemini חינמי הוא התחלה מצוינת). המפתח נשמר מוצפן על המכשיר בלבד.'},
+  {em:'📎',t:'העלה את החומר שלך',x:'אפשר להעלות PDF או Word, והשיעור ייבנה מהחומר שאתה מלמד — לא ממה שהמערכת ממציאה.'},
+  {em:'✨',t:'צור, ערוך ושמור',x:'בחר מקצוע, כיתה ונושא, סמן מה ליצור, ולחץ "צור שיעור". אפשר להקל שאלות, להדפיס ולשמור לספרייה.'}
+];
+let onbIx=0;
+function showOnboarding(force){
+  if(!force && pref('onbDone')) return;
+  onbIx=0;$('onb').classList.add('show');drawOnb();
+}
+function drawOnb(){
+  const o=ONB[onbIx];$('onbEm').textContent=o.em;$('onbTitle').textContent=o.t;$('onbText').textContent=o.x;
+  $('onbDots').innerHTML=ONB.map((_,i)=>'<i class="'+(i===onbIx?'on':'')+'"></i>').join('');
+  $('onbNext').textContent=onbIx===ONB.length-1?'בוא נתחיל':'הבא';
+}
+function onbNext(){ if(onbIx<ONB.length-1){onbIx++;drawOnb();}else onbSkip(); }
+function onbSkip(){ pref('onbDone','1');$('onb').classList.remove('show'); }
+
+/* ---------- share ---------- */
+function shareApp(){
+  const d={title:APP.name,text:'המורה שלי AI — בונה שיעורים בעברית',url:location.href};
+  if(navigator.share) navigator.share(d).catch(()=>{});
+  else{navigator.clipboard?.writeText(location.href);toast('הקישור הועתק');}
+}
+
+/* ============================================================
+   APPNEST ASSISTANT — config map (engine copied separately)
+   ============================================================ */
+window.APPNEST_ASSISTANT_CONFIG = {
+  appName:'המורה שלי AI',
+  appDescription:'אפליקציה שיוצרת שיעורים לבית ספר יסודי (מערך, מצגת, שאלות, דף עבודה ועוד) מנושא או מחומר שהמורה מעלה. עזור למורה לנסח נושא, לבחור הגדרות, ולהבין את התוצרים. התוכן שנוצר הוא הצעה בלבד — המלץ תמיד לעבור עליו לפני השיעור.',
+  tabs:[
+    {name:'צור שיעור',match:'צור שיעור חדש'},
+    {name:'השיעורים שלי',match:'השיעורים שלי'},
+    {name:'הגדרות',match:'הגדרות'}
+  ],
+  fields:[{name:'נושא',label:'נושא השיעור',placeholder:'למשל'}],
+  navigate:(name)=>{ const map={'צור שיעור':'create','השיעורים שלי':'library','הגדרות':'settings','בית':'home'}; if(map[name])go(map[name]); },
+  readAiConfig:()=>{
+    if(AI.provider==='local') return {provider:'device',keys:{deviceUrl:(AI.endpoint||PROVIDERS.local.endpoint||'http://localhost:11434/v1')}};
+    if(AI.provider==='custom') return {provider:'custom',keys:{customUrl:((AI.endpoint||'').replace(/\/+$/,'')+'/chat/completions'),customKey:_apiKeyCache}};
+    return {provider:AI.provider,keys:{[AI.provider]:_apiKeyCache}};
+  },
+  readState:()=> currentLesson ? ('מוצג שיעור: '+(currentLesson.title||'')) : 'לא נוצר שיעור עדיין',
+  actions:[{desc:'צור שיעור לפי הטופס הנוכחי',run:()=>generate()}],
+  suggestions:['איך אני מחבר מפתח בינה?','מה ההבדל בין הסגנונות?','צור לי שיעור על מחזור המים לכיתה ד\'']
+};
+/* ============================================================
+   INIT
+   ============================================================ */
+async function init(){
+  applyMode(pref('mode')||'night');
+  buildForm();
+  $('aboutVer').textContent='גרסה '+APP.version;$('aboutVer2').textContent=APP.version;
+  // storage
+  _db=await openDB();
+  try{ if(navigator.storage&&navigator.storage.persist) navigator.storage.persist(); }catch(e){}
+  await loadAiConfig();
+  // if a key exists, put a placeholder marker (never show the real key)
+  await refreshLibCount();
+  // file input
+  $('fileInput').addEventListener('change',e=>handleFile(e.target.files[0]));
+  const drop=$('drop');
+  ['dragover','dragenter'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('hot');}));
+  ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('hot');}));
+  drop.addEventListener('drop',e=>{if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0]);});
+  // load saved api key into field as masked (so user sees it's set)
+  if(_apiKeyCache){ $('apiKey').value=_apiKeyCache; }
+  showOnboarding(false);
+  // SW
+  if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js').catch(()=>{}); }
+}
+init();
+</script>
+<!-- עוזר AppNest — מנוע קבוע (זהה בכל האפליקציות). המפה מוגדרת למעלה ב-APPNEST_ASSISTANT_CONFIG -->
+<script src="appnest-assistant.js"></script>
+</body>
+</html>
