@@ -539,7 +539,7 @@ select.inp{appearance:none;background-image:linear-gradient(45deg,transparent 50
 /* ============================================================
    המורה שלי AI · AppNest · single-file PWA
    ============================================================ */
-const APP = { name:'המורה שלי AI', version:'1.0.0' };
+const APP = { name:'המורה שלי AI', version:'1.0.2' };
 
 /* ---------- tiny helpers ---------- */
 const $ = id => document.getElementById(id);
@@ -581,7 +581,7 @@ const PROVIDERS = {
     help:'שכבה חינמית ללא כרטיס אשראי. צור מפתח ב־aistudio.google.com/app/apikey',
     link:'https://aistudio.google.com/app/apikey',
     defaultModel:'gemini-flash-latest',
-    fallbacks:['gemini-flash-latest','gemini-2.5-flash','gemini-2.0-flash','gemini-1.5-flash'] },
+    fallbacks:['gemini-flash-latest','gemini-flash-lite-latest','gemini-pro-latest'] },
   claude:{ name:'Claude (Anthropic)', em:'🟣', tag:'api', tagLabel:'API',
     help:'הכי מדויק. צור מפתח ב־console.anthropic.com (בתשלום לפי שימוש).',
     link:'https://console.anthropic.com/',
@@ -899,7 +899,8 @@ function buildPrompt(f){
 - ${f.projector?'יש מקרן':'אין מקרן'}; ${f.computers?'יש מחשבים לתלמידים':'אין מחשבים לתלמידים — התאם פעילויות ללא מחשב'}
 - סגנון: ${f.styles.join(', ')||'רגיל'}
 
-התאם את השפה, אורך המשפטים ורמת השאלות ל${f.grade}. השתמש בעברית בלבד. השאר מונחים לועזיים רק כשאין ברירה.${mat}
+התאם את השפה, אורך המשפטים ורמת השאלות ל${f.grade}.
+כתוב בעברית תקנית ומדויקת בלבד. הקפד הקפדה יתרה על איות נכון, ניקוד דקדוקי נכון של זכר/נקבה ויחיד/רבים, ופיסוק תקין. בדוק כל מילה — אל תמציא מילים ואל תערבב אותיות. אל תשתמש באנגלית או בתעתיק, למעט מונחים מקצועיים שאין להם חלופה עברית.${mat}
 
 צור אך ורק את התוצרים הבאים: ${want}.
 החזר JSON תקין בלבד, ללא טקסט לפני או אחרי, ללא סימוני markdown, במבנה:
@@ -924,7 +925,7 @@ async function generate(){
   $('lessonTabs').innerHTML='';
   $('lessonPanes').innerHTML='<div class="gen-status"><div class="big">🍎</div><div><span class="spinner" style="border-top-color:var(--gold);border-color:var(--line)"></span> בונה את השיעור שלך… זה עשוי לקחת עד דקה.</div></div>';
   try{
-    const raw=await callAI(buildPrompt(f),{json:true,maxTokens:6000,system:'אתה עוזר הוראה. החזר JSON תקין בלבד בעברית.'});
+    const raw=await callAI(buildPrompt(f),{json:true,maxTokens:6000,system:'אתה עוזר הוראה ישראלי הכותב עברית תקנית ומדויקת ללא שגיאות כתיב. החזר JSON תקין בלבד בעברית.'});
     const data=parseJSON(raw);
     currentLesson=data;
     renderLesson(data,f);

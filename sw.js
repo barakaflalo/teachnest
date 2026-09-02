@@ -1,5 +1,5 @@
 /* המורה שלי AI — Service Worker */
-const VERSION = 'morehai-v1.0.1';
+const VERSION = 'morehai-v1.0.2';
 const APP_CACHE = 'app-' + VERSION;
 const SHELL = ['./', './index.html', './manifest.json', './privacy_policy.html', './appnest-assistant.js', './icon-192.png', './icon-512.png'];
 
